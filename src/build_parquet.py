@@ -31,6 +31,12 @@ PLACES = pa.schema([
     ("instance_of", pa.list_(pa.string())),   # P31, all values
     ("located_in", pa.list_(pa.string())),    # P131, all values
     ("geonames_id", pa.string()),    # P1566, first value
+    ("osm_relation", pa.string()),   # P402, first value
+    ("capital", pa.string()),        # P36, first value
+    ("iso_3166_2", pa.string()),     # P300, first value
+    ("contains", pa.list_(pa.string())),      # P150, all values
+    ("population", pa.float64()),    # P1082, the preferred or latest statement
+    ("area", pa.float64()),          # P2046
     ("sitelinks", pa.int32()),
     ("n_names", pa.int32()),
 ])
@@ -84,6 +90,12 @@ def main():
             p["instance_of"].append(r["p31"])
             p["located_in"].append(r["p131"])
             p["geonames_id"].append(first(r["geonames"]))
+            p["osm_relation"].append(first(r["osm"]))
+            p["capital"].append(first(r["p36"]))
+            p["iso_3166_2"].append(first(r["iso3166_2"]))
+            p["contains"].append(r["p150"])
+            p["population"].append(r["population"])
+            p["area"].append(r["area"])
             p["sitelinks"].append(r["sitelinks"])
             p["n_names"].append(count)
             places += 1

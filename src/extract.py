@@ -31,6 +31,35 @@ def coord(item):
             return round(v["latitude"], 6), round(v["longitude"], 6)
     return None, None
 
+
+def quantity(item, prop):
+    """The amount of a quantity claim, preferring the statement Wikidata prefers.
+
+    Population is stated many times over, once per census. Rank is Wikidata's
+    own answer to which one is current, so use it, and fall back to the latest
+    point in time (P585) when no statement is ranked.
+    """
+    best = None
+    for c in claims_of(item, prop):
+        v = c.get("mainsnak", {}).get("datavalue", {}).get("value")
+        if not isinstance(v, dict) or "amount" not in v:
+            continue
+        when = ""
+        for q in (c.get("qualifiers") or {}).get("P585", []):
+            t = q.get("datavalue", {}).get("value", {})
+            if isinstance(t, dict):
+                when = t.get("time") or ""
+        key = (c.get("rank") == "preferred", when)
+        if best is None or key > best[0]:
+            best = (key, v["amount"])
+    if best is None:
+        return None
+    try:
+        return float(best[1])
+    except (TypeError, ValueError):
+        return None
+
+
 def convert(item):
     lat, lon = coord(item)
     labels = {k: v["value"] for k, v in (item.get("labels") or {}).items()}
@@ -42,6 +71,15 @@ def convert(item):
         "p131": entity_values(item, "P131"),
         "p17": entity_values(item, "P17"),
         "geonames": string_values(item, "P1566"),
+        # The downward hierarchy, stated rather than inferred by reversing P131.
+        "p150": entity_values(item, "P150"),
+        "p36": entity_values(item, "P36"),
+        # The direct link to OpenStreetMap, which is how the overlap between
+        # the two can be measured instead of assumed.
+        "osm": string_values(item, "P402"),
+        "iso3166_2": string_values(item, "P300"),
+        "population": quantity(item, "P1082"),
+        "area": quantity(item, "P2046"),
         "sitelinks": len(item.get("sitelinks") or {}),
         "labels": labels,
         "aliases": aliases,

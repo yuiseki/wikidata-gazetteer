@@ -52,6 +52,12 @@ the positions and the hierarchy.
 | `instance_of` | P31, all values |
 | `located_in` | P131, all values |
 | `geonames_id` | P1566, first value |
+| `osm_relation` | P402, the OpenStreetMap relation id |
+| `capital` | P36, first value |
+| `iso_3166_2` | P300, first value |
+| `contains` | P150, all values |
+| `population` | P1082, the preferred statement, else the latest |
+| `area` | P2046 |
 | `sitelinks` | number of Wikipedia articles |
 | `n_names` | rows this place has in `names` |
 
@@ -79,6 +85,12 @@ all.
 | English label | 9,123,547 | 74.8% |
 | at least one sitelink | 7,374,883 | 60.4% |
 | GeoNames id (P1566) | 4,058,151 | 33.2% |
+| population (P1082) | 827,694 | 6.8% |
+| area (P2046) | 617,676 | 5.1% |
+| OSM relation (P402) | 536,581 | 4.4% |
+| capital (P36) | 102,291 | 0.8% |
+| contains (P150) | 80,862 | 0.7% |
+| ISO 3166-2 (P300) | 5,526 | 0.0% |
 | Japanese label | 488,598 | 4.0% |
 
 Names per place: 30.0% have one, 70.9% have three or fewer, 6.3% have more
@@ -107,6 +119,31 @@ Physical features and buildings outnumber settlements. Filter on `instance_of`
 if that is not what you want. In particular, matching every name in this table
 against running text will produce a great many false positives, because street
 names, house names and hotel names are in it.
+
+## The hierarchy runs in both directions, unevenly
+
+`located_in` (P131) is the one to build on. 10,806,828 places carry it, and
+reversing it yields 395,046 distinct containers, of which 357,043 are rows in
+this table, so 90.4% of the hierarchy resolves without leaving the dataset.
+
+`contains` (P150) states the same relation downward, and is far sparser: only
+80,862 places name their children, across 1,093,138 edges. Where it is present
+it is well kept. Japan lists its 47 prefectures; Tokyo lists its 96 wards and
+municipalities. Treat it as a cross-check on the reversed P131, not as the
+hierarchy itself.
+
+## How much of this is linked to the other big gazetteers
+
+| | places |
+|---|---|
+| both a GeoNames id and an OSM relation | 273,599 |
+| GeoNames only | 3,784,552 |
+| OSM relation only | 262,982 |
+| neither | 7,884,195 |
+
+Two thirds of these places, 64.6%, are linked to neither. That is worth knowing
+before treating agreement between gazetteers as evidence: this source is largely
+not a restatement of either of the other two.
 
 ## Known limits
 

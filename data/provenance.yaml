@@ -1,0 +1,65 @@
+# Where this dataset came from and what was done to it. Written for a person
+# deciding whether to trust it, and for a machine checking it is still current.
+
+dataset:
+  name: wikidata-gazetteer
+  built: 2026-09-17
+  places: 12205328
+  names: 62506107
+  languages: 552
+
+licence:
+  data: CC0-1.0
+  basis: >
+    Wikidata dedicates its structured data to the public domain under CC0.
+    The labels and aliases here are that structured data, reshaped, not added to.
+  reference: https://www.wikidata.org/wiki/Wikidata:Licensing
+  code: Apache-2.0
+
+source:
+  name: Wikidata JSON dump
+  file: wikidata-20260831-all.json.bz2
+  bytes: 102943257005
+  dump_date: 2026-08-31
+  url: https://dumps.wikimedia.org/wikidatawiki/entities/
+
+processing:
+  - step: selection
+    script: src/extract.py
+    rule: >
+      An item is kept if it carries P625 (coordinate location) or P1566
+      (GeoNames ID). Both are testable as substrings before any JSON parsing,
+      which is what makes a full pass affordable.
+    results:
+      entities_passing_the_prefilter: 12292806
+      items_kept: 12205328
+    note: >
+      Decompression is the binding constraint, not parsing. A full pass took
+      5927 seconds with lbzip2 on 24 threads.
+
+  - step: reshaping
+    script: src/build_parquet.py
+    output: [places.parquet, names.parquet]
+    note: >
+      Two tables because the shapes differ. A place has one position and one
+      hierarchy but many names, so keeping names separate avoids repeating the
+      coordinates 62 million times and gives every name its own language.
+
+known_limitations:
+  - >
+    Selection is "has a location", not "is a settlement". Mountains, streets,
+    rivers, buildings and hotels are all present. The commonest class is
+    mountain at 507,727, ahead of human settlement at 478,604.
+  - >
+    Matching every name against running text will produce many false positives
+    for that reason. Filter on instance_of first.
+  - >
+    Japanese labels cover 4.0% of places. The language distribution follows
+    Wikipedia's, including 3,459,736 Cebuano labels from bot-generated articles.
+  - >
+    33.2% of places carry a GeoNames id. The remaining two thirds have no link,
+    so this source is substantially independent of GeoNames rather than a
+    restatement of it.
+  - >
+    Wikidata is crowd-edited; positions and hierarchies are as good as the last
+    edit.

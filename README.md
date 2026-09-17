@@ -9,6 +9,8 @@ source, and it is CC0. The pieces are published separately elsewhere, as full
 entity dumps, as RDF triples, and as per-language label tables. Nobody had
 joined them into a gazetteer.
 
+The dataset: https://huggingface.co/datasets/yuiseki/wikidata-gazetteer
+
 ## What is here
 
     src/extract.py         reads the Wikidata JSON dump, emits one JSONL record

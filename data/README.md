@@ -28,6 +28,9 @@ of how many Wikipedias write about each one.
 
 Built from the `20260831` JSON dump. CC0, like Wikidata itself.
 
+Code, provenance and the build pipeline:
+https://github.com/yuiseki/wikidata-gazetteer
+
 ## Why this exists
 
 Wikidata holds the deepest multilingual place-name data of any openly licensed

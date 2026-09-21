@@ -49,7 +49,20 @@ known_limitations:
   - >
     Selection is "has a location", not "is a settlement". Mountains, streets,
     rivers, buildings and hotels are all present. The commonest class is
-    mountain at 507,727, ahead of human settlement at 478,604.
+    mountain at 507,727, ahead of human settlement at 478,604. That ordering is
+    granularity rather than importance: there are about two hundred countries,
+    so no ranking by count can show them.
+  - >
+    729 of the entries are languages, not places. Wikidata gives a language the
+    coordinates of where it is spoken: French sits in Paris, English in southern
+    England. They are nothing by count and a tenth of the matches in running
+    text, 9.9% in an English travel guide and 10.7% in United Nations documents,
+    because a document says "French" far more often than it names most towns.
+    The card gives the classes to exclude.
+  - >
+    About 36,000 entries are organisations carrying the coordinates of their
+    premises: nonprofit organization 13,617, business 11,635, organization
+    11,250. They do less harm, their names being long and specific.
   - >
     Matching every name against running text will produce many false positives
     for that reason. Filter on instance_of first.

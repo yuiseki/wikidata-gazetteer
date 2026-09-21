@@ -118,10 +118,58 @@ twenty commonest classes:
 | house | 233,771 | | valley | 133,346 |
 | mosque | 233,308 | | hotel | 129,411 |
 
-Physical features and buildings outnumber settlements. Filter on `instance_of`
-if that is not what you want. In particular, matching every name in this table
-against running text will produce a great many false positives, because street
-names, house names and hotel names are in it.
+Physical features and buildings outnumber settlements. That is a fact about
+granularity rather than about importance: there are half a million mountains and
+about two hundred countries, so any ranking by count puts mountains first and
+countries nowhere. Which of them matters depends on the text being matched.
+
+## Things in here that are not places at all
+
+Selecting on `P625` takes everything Wikidata gives a coordinate to, and it
+gives coordinates to more than places.
+
+**Languages, 729 of them.** Wikidata places a language where it is spoken.
+`Q150` French sits at 48.85, 2.35, which is Paris; `Q1860` English at 51.0, 0.0;
+`Q7737` Russian at 55.0, 38.0. 729 items out of 12.2 million is nothing by
+count and a tenth of the matches in running text, because a document writes
+"French" far more often than it names most towns. Measured against two corpora,
+removing them cut matches by 9.9% in an English travel guide and 10.7% in United
+Nations documents.
+
+**Organisations, about 36,000.** `nonprofit organization` 13,617, `business`
+11,635, `organization` 11,250, carrying the coordinates of their premises. These
+do less harm: their names are long and specific, like `Boston Children's
+Museum`, so they rarely collide with ordinary text.
+
+Of the 840,857 names that survive a one-word prominence filter, 1,786 resolve to
+a language and 5,462 to an organisation.
+
+### Removing them
+
+    -- the language classes, found by taking the classes that co-occur with
+    -- Q34770 language and keeping those whose label names a kind of language
+    SELECT * FROM places WHERE NOT list_has_any(instance_of, [
+      'Q315','Q1036511','Q1097949','Q11499915','Q1149626','Q11820611','Q1208380',
+      'Q1288568','Q1322198','Q135295328','Q152559','Q17376908','Q1790577',
+      'Q20162172','Q20671152','Q21663239','Q215844','Q2315359','Q23492',
+      'Q250858','Q25295','Q2630831','Q2737212','Q2966838','Q3123468','Q33215',
+      'Q332','Q33289','Q33384','Q335214','Q33742','Q33831','Q33956','Q3329375',
+      'Q34228','Q34770','Q38058796','Q399495','Q4085712','Q436240','Q45762',
+      'Q455374','Q4536543','Q470775','Q61566','Q645304','Q778873','Q838296',
+      'Q839470','Q941501','Q951873'
+    ]);
+
+    -- and the organisations
+    SELECT * FROM places WHERE NOT list_has_any(instance_of,
+      ['Q163740','Q4830453','Q43229']);
+
+Matching every name in this table against running text will still produce false
+positives, because street names, house names and hotel names are in it, and
+because a one-word name like `Council` names a town in Idaho. Two rules help,
+measured on 1.31 billion characters of UN documents: require a match to cover a
+whole run of capitalised words, and require a one-word name to clear a
+prominence bar. At 100 sitelinks for single words, the top twenty-five names
+matched in that corpus are all real.
 
 ## The hierarchy runs in both directions, unevenly
 
